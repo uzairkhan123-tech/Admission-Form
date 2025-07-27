@@ -1,0 +1,310 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech-Dastak Admission Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+        }
+        .form-container {
+            position: relative;
+            overflow: hidden;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        .animate-bounce:hover {
+            animation: bounce 0.5s;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+        }
+        .carousel-item {
+            display: none;
+        }
+        .carousel-item.active {
+            display: block;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            50% { box-shadow: 0 0 10px 5px rgba(59, 130, 246, 0.7); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+        }
+        .animate-border {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="form-container bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full bg-opacity-90">
+            <canvas id="spaceshipCanvas"></canvas>
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-blue-900">Tech-Dastak Digital Media Marketing Agency</h1>
+                <p class="text-lg text-blue-600 mt-2">Bright Your Life In Information Technology (IT) World</p>
+            </div>
+
+            <!-- Form -->
+            <form id="admissionForm" action="https://formspree.io/f/xrbzqowv" method="POST" class="space-y-8">
+                <input type="hidden" name="_subject" value="New Admission Form Submission">
+                <input type="hidden" name="_next" value="https://yourwebsite.com/thank-you.html">
+                <!-- Personal Information Section -->
+                <div id="personalInfoSection" class="space-y-4 border-2 border-blue-300 rounded-lg p-4">
+                    <h2 class="text-2xl font-semibold text-blue-900">Personal Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="fullName" class="block text-sm font-medium text-blue-700">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" required class="mt-1 w-full p-3 border border-blue-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="qualification" class="block text-sm font-medium text-blue-700">Qualification</label>
+                            <select id="qualification" name="qualification" required class="mt-1 w-full p-3 border border-blue-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                <option value="" disabled selected>Select Qualification</option>
+                                <option value="Matric">Matric</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Graduation">Graduation</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="dob" class="block text-sm font-medium text-blue-700">Date of Birth</label>
+                            <input type="date" id="dob" name="dob" required min="1980-01-01" max="2025-12-31" class="mt-1 w-full p-3 border border-blue-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-blue-700">Email</label>
+                            <input type="email" id="email" name="email" required class="mt-1 w-full p-3 border border-blue-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-blue-700">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required class="mt-1 w-full p-3 border border-blue-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carousel Section -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-semibold text-blue-900">What We Provide</h2>
+                    <div class="relative">
+                        <div id="carousel" class="carousel overflow-hidden rounded-lg">
+                            <div class="carousel-item active bg-blue-100 p-6 text-center">
+                                <h3 class="text-xl font-bold text-blue-900">Social Media Management</h3>
+                                <p class="text-blue-700">Master Facebook Ads Manager to boost brand visibility.</p>
+                            </div>
+                            <div class="carousel-item bg-blue-100 p-6 text-center">
+                                <h3 class="text-xl font-bold text-blue-900">Off-Page SEO</h3>
+                                <p class="text-blue-700">Learn guest posting to enhance website rankings.</p>
+                            </div>
+                            <div class="carousel-item bg-blue-100 p-6 text-center">
+                                <h3 class="text-xl font-bold text-blue-900">Poster Design</h3>
+                                <p class="text-blue-700">Create stunning visuals for brand campaigns.</p>
+                            </div>
+                            <div class="carousel-item bg-blue-100 p-6 text-center">
+                                <h3 class="text-xl font-bold text-blue-900">Using AI for Work</h3>
+                                <p class="text-blue-700">Leverage AI tools to streamline tasks.</p>
+                            </div>
+                            <div class="carousel-item bg-blue-100 p-6 text-center">
+                                <h3 class="text-xl font-bold text-blue-900">Client Hunting</h3>
+                                <p class="text-blue-700">Develop skills to attract and retain clients.</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-4">
+                            <button id="prevBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Previous</button>
+                            <button id="nextBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Next</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agreement Section -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-semibold text-blue-900">Agreement</h2>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="agreement" name="agreement" required class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-blue-300 rounded">
+                        <label for="agreement" class="ml-2 block text-sm text-blue-700">I agree to the terms and conditions</label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit" class="gradient-bg text-white px-6 py-3 rounded-lg font-semibold text-lg hover:bg-blue-800 transition-colors duration-300 animate-bounce">Submit Application</button>
+                </div>
+            </form>
+
+            <!-- Footer -->
+            <div class="mt-8 text-center text-blue-700">
+                <p class="text-sm">Uzair Khan</p>
+                <p class="text-sm font-medium">Course Instructor (Owner & CEO TD Group)</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Spaceship Animation
+        const canvas = document.getElementById('spaceshipCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.querySelector('.form-container');
+
+        function resizeCanvas() {
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+        }
+        resizeCanvas();
+
+        const spaceships = [];
+        const numSpaceships = 3;
+
+        class Spaceship {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = 20;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.opacity = Math.random() * 0.5 + 0.5;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.moveTo(0, -this.size);
+                ctx.lineTo(this.size / 2, this.size);
+                ctx.lineTo(-this.size / 2, this.size);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX = -this.speedX;
+                if (this.y < 0 || this.y > canvas.height) this.speedY = -this.speedY;
+                this.opacity += Math.random() * 0.02 - 0.01;
+                if (this.opacity < 0.5) this.opacity = 0.5;
+                if (this.opacity > 1) this.opacity = 1;
+            }
+        }
+
+        for (let i = 0; i < numSpaceships; i++) {
+            spaceships.push(new Spaceship());
+        }
+
+        function animateSpaceships() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(30, 58, 138, 0.8)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            spaceships.forEach(spaceship => {
+                spaceship.update();
+                spaceship.draw();
+            });
+            requestAnimationFrame(animateSpaceships);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        animateSpaceships();
+
+        // Animated Borders for Personal Information Section
+        const personalInfoSection = document.getElementById('personalInfoSection');
+        const inputs = personalInfoSection.querySelectorAll('input, select');
+
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                if (Array.from(inputs).some(input => input.value)) {
+                    personalInfoSection.classList.add('animate-border');
+                } else {
+                    personalInfoSection.classList.remove('animate-border');
+                }
+            });
+        });
+
+        // Carousel functionality
+        const carousel = document.getElementById('carousel');
+        const items = carousel.getElementsByClassName('carousel-item');
+        let currentIndex = 0;
+
+        function showSlide(index) {
+            if (index >= items.length) currentIndex = 0;
+            if (index < 0) currentIndex = items.length - 1;
+            for (let i = 0; i < items.length; i++) {
+                items[i].classList.remove('active');
+            }
+            items[currentIndex].classList.add('active');
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            currentIndex++;
+            showSlide(currentIndex);
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            currentIndex--;
+            showSlide(currentIndex);
+        });
+
+        // Form validation and submission handling
+        const form = document.getElementById('admissionForm');
+        form.addEventListener('submit', function(e) {
+            if (!this.checkValidity()) {
+                e.preventDefault();
+                alert('Please fill out all required fields.');
+            } else {
+                alert('Form submitted successfully! You will receive a confirmation soon.');
+            }
+        });
+    </script>
+</body>
+</html>
